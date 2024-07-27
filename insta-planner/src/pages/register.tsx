@@ -1,18 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('Les mots de passe ne correspondent pas');
       return;
     }
 
@@ -27,8 +30,10 @@ export default function Register() {
     const data = await res.json();
 
     if (res.ok) {
-      console.log('Registration successful:', data);
-      // Rediriger l'utilisateur ou afficher un message de succès
+      setSuccess('Inscription réussie! Redirection en cours...');
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
     } else {
       setError(data.error);
     }
@@ -37,7 +42,8 @@ export default function Register() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl mb-4">Register</h1>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="bg-pink-200 text-red-600 p-2">{error}</p>}
+      {success && <p className="bg-green-200 text-green-700 p-2">{success}</p>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="email" className="block text-gray-700">Email</label>

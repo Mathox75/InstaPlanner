@@ -1,11 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'next/router';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const { login } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +26,11 @@ export default function Login() {
     const data = await res.json();
 
     if (res.ok) {
-      console.log('Login successful:', data);
+      login(email, data.token);
+      setSuccess('Connexion réussie!');
+      setTimeout(() => {
+        router.push('/profile');
+      }, 2000);
     } else {
       setError(data.error);
     }
@@ -30,7 +39,8 @@ export default function Login() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl mb-4">Login</h1>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="bg-pink-200 text-red-600 p-2">{error}</p>}
+      {success && <p className="bg-green-200 text-green-700 p-2">{success}</p>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="email" className="block text-gray-700">Email</label>
