@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 
 export default function Register() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -14,8 +15,13 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!name || !email || !password || !confirmPassword) {
+      setError('Tous les champs sont obligatoires.');
+      return;
+    }
+
     if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
+      setError('Les mots de passe ne correspondent pas.');
       return;
     }
 
@@ -24,7 +30,7 @@ export default function Register() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ name, email, password }),
     });
 
     const data = await res.json();
@@ -45,6 +51,16 @@ export default function Register() {
       {error && <p className="bg-pink-200 text-red-600 p-2">{error}</p>}
       {success && <p className="bg-green-200 text-green-700 p-2">{success}</p>}
       <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label htmlFor="name" className="block text-gray-700">Name</label>
+          <input
+            type="text"
+            id="name"
+            className="border p-2 w-full"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
         <div className="mb-4">
           <label htmlFor="email" className="block text-gray-700">Email</label>
           <input

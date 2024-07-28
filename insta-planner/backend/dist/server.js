@@ -34,7 +34,10 @@ const pool = mariadb_1.default.createPool({
     connectTimeout: 10000
 });
 app.post('/api/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+        return res.status(400).json({ error: 'Tous les champs sont obligatoires.' });
+    }
     try {
         const connection = yield pool.getConnection();
         console.log('Connection established for register');
@@ -44,7 +47,7 @@ app.post('/api/register', (req, res) => __awaiter(void 0, void 0, void 0, functi
             return res.status(409).json({ error: 'Utilisateur déjà inscrit avec cet email.' });
         }
         const hash = yield bcrypt_1.default.hash(password, 10);
-        yield connection.query('INSERT INTO users (email, password) VALUES (?, ?)', [email, hash]);
+        yield connection.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hash]);
         connection.release();
         console.log('Connection released for register');
         res.status(200).json({ message: 'Inscription réussie!' });
@@ -56,6 +59,9 @@ app.post('/api/register', (req, res) => __awaiter(void 0, void 0, void 0, functi
 }));
 app.post('/api/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Tous les champs sont obligatoires.' });
+    }
     try {
         const connection = yield pool.getConnection();
         console.log('Connection established for login');
@@ -66,8 +72,8 @@ app.post('/api/login', (req, res) => __awaiter(void 0, void 0, void 0, function*
             const user = rows[0];
             const match = yield bcrypt_1.default.compare(password, user.password);
             if (match) {
-                const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-                res.status(200).json({ user: email, token });
+                const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                res.status(200).json({ user: { email: user.email, name: user.name }, token });
             }
             else {
                 res.status(401).json({ error: 'Mot de passe incorrect.' });

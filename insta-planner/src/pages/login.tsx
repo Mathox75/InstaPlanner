@@ -15,6 +15,12 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!email || !password) {
+      setError('Tous les champs sont obligatoires.');
+      setSuccess('');
+      return;
+    }
+
     const res = await fetch('http://localhost:3001/api/login', {
       method: 'POST',
       headers: {
@@ -26,13 +32,15 @@ export default function Login() {
     const data = await res.json();
 
     if (res.ok) {
-      login(email, data.token);
+      login({ email: data.user.email, name: data.user.name }, data.token);
       setSuccess('Connexion réussie!');
+      setError('');
       setTimeout(() => {
         router.push('/profile');
       }, 2000);
     } else {
       setError(data.error);
+      setSuccess('');
     }
   };
 

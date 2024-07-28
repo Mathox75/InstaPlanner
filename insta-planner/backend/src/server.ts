@@ -26,7 +26,11 @@ const pool = mariadb.createPool({
 });
 
 app.post('/api/register', async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Tous les champs sont obligatoires.' });
+  }
 
   try {
     const connection = await pool.getConnection();
@@ -39,7 +43,7 @@ app.post('/api/register', async (req, res) => {
     }
 
     const hash = await bcrypt.hash(password, 10);
-    await connection.query('INSERT INTO users (email, password) VALUES (?, ?)', [email, hash]);
+    await connection.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hash]);
     connection.release();
     console.log('Connection released for register');
     res.status(200).json({ message: 'Inscription réussie!' });
@@ -52,6 +56,10 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Tous les champs sont obligatoires.' });
+  }
+
   try {
     const connection = await pool.getConnection();
     console.log('Connection established for login');
@@ -63,8 +71,8 @@ app.post('/api/login', async (req, res) => {
       const user = rows[0];
       const match = await bcrypt.compare(password, user.password);
       if (match) {
-        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET!, { expiresIn: '1h' });
-        res.status(200).json({ user: email, token });
+        const token = jwt.sign({ id: user.id, email: user.email, name: user.name }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+        res.status(200).json({ user: { email: user.email, name: user.name }, token });
       } else {
         res.status(401).json({ error: 'Mot de passe incorrect.' });
       }

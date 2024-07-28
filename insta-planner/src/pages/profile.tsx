@@ -12,8 +12,9 @@ export default function Profile() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl mb-4">Profile</h1>
-      <p>Email: {user}</p>
+      <p>Name: {user.name}</p>
       {/* Ajoutez plus de détails du profil ici */}
     </div>
   );
 }
+
