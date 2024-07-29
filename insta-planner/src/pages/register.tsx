@@ -15,6 +15,9 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setError('');
+    setSuccess('');
+
     if (!name || !email || !password || !confirmPassword) {
       setError('Tous les champs sont obligatoires.');
       return;
