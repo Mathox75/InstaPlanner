@@ -1,16 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 export default function Home() {
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    fetch('http://localhost:3001/api/hello')
-      .then((response) => response.json())
-      .then((data) => setMessage(data.message));
-  }, []);
+  const [message, setMessage] = useState('Bienvenue à InstaPlanner!');
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center py-2">
